@@ -1,0 +1,44 @@
+def is_variable(x):
+    return isinstance(x, str) and x.islower()
+
+def unify(term1, term2, substitutions=None):
+    if substitutions is None:
+        substitutions = {}
+
+    if term1 == term2:
+        return substitutions
+
+    if is_variable(term1):
+        return unify_variable(term1, term2, substitutions)
+
+    if is_variable(term2):
+        return unify_variable(term2, term1, substitutions)
+
+    if isinstance(term1, tuple) and isinstance(term2, tuple):
+        return unify(term1[1], term2[1], unify(term1[0], term2[0], substitutions))
+
+    raise Exception(f"Cannot unify {term1} and {term2}")
+
+def unify_variable(var, term, substitutions):
+    if var in substitutions:
+        return unify(substitutions[var], term, substitutions)
+
+    if is_variable(term) and var == term:
+        raise Exception(f"Cannot unify variable {var} with itself")
+
+    substitutions[var] = term
+    return substitutions
+
+if __name__ == "__main__":
+    term1 = ('f', 'x')
+    term2 = ('f', 'y')
+    term3 = ('f', 'g')
+
+    try:
+        result = unify(term1, term2)
+        print("Unified:", result)
+
+        result = unify(term1, term3)
+        print("Unified:", result)
+    except Exception as e:
+        print("Unification failed:", e)
