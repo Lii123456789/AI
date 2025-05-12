@@ -1,0 +1,25 @@
+def water_jug():
+    a_capacity = 4
+    b_capacity = 3
+    goal = 2
+    a, b = 0, 0
+
+    steps = [(a, b)]
+
+    while a != goal:
+        if a == 0:
+            a = a_capacity
+        elif b == b_capacity:
+            b = 0
+        else:
+            transfer = min(a, b_capacity - b)
+            a -= transfer
+            b += transfer
+        
+        steps.append((a, b))
+
+    for step in steps:
+        print(f"Jug A: {step[0]}L, Jug B: {step[1]}L")
+
+if __name__ == "__main__":
+    water_jug()
