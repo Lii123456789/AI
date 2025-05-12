@@ -1,0 +1,42 @@
+import random
+import math
+
+def calculate_distance(route, dist_matrix):
+    return sum(dist_matrix[route[i]][route[i+1]] for i in range(len(route) - 1)) + dist_matrix[route[-1]][route[0]]
+
+def swap(route):
+    i, j = random.sample(range(len(route)), 2)
+    route[i], route[j] = route[j], route[i]
+
+def simulated_annealing(dist_matrix, temperature=1000, cooling_rate=0.995, iterations=1000):
+    cities = list(range(len(dist_matrix)))
+    route = random.sample(cities, len(cities))
+    best_route = route[:]
+    best_distance = calculate_distance(route, dist_matrix)
+
+    for _ in range(iterations):
+        neighbor = route[:]
+        swap(neighbor)
+        new_distance = calculate_distance(neighbor, dist_matrix)
+
+        if new_distance < best_distance or random.random() < math.exp((best_distance - new_distance) / temperature):
+            route = neighbor
+            best_distance = new_distance
+            best_route = route
+
+        temperature *= cooling_rate
+
+    return best_route, best_distance
+
+if __name__ == "__main__":
+    dist_matrix = [
+        [0, 10, 15, 20, 25],
+        [10, 0, 35, 25, 30],
+        [15, 35, 0, 30, 5],
+        [20, 25, 30, 0, 15],
+        [25, 30, 5, 15, 0]
+    ]
+
+    best_route, best_distance = simulated_annealing(dist_matrix)
+    print("Best route:", best_route)
+    print("Total distance:", best_distance)
