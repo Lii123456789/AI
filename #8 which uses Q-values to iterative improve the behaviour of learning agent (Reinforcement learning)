@@ -1,0 +1,64 @@
+import random
+
+class QLearningAgent:
+    def __init__(self, actions, lr=0.1, gamma=0.9, epsilon=0.1):
+        self.actions = actions
+        self.lr = lr
+        self.gamma = gamma
+        self.epsilon = epsilon
+        self.q_values = {}
+
+    def get_q_value(self, state, action):
+        return self.q_values.get((state, action), 0)
+    
+    def set_q_value(self, state, action, value):
+        self.q_values[(state, action)] = value
+    
+    def choose_action(self, state):
+        if random.random() < self.epsilon:
+            return random.choice(self.actions)
+        return max(self.actions, key=lambda a: self.get_q_value(state, a))
+    
+    def update_q_value(self, state, action, reward, next_state):
+        max_q = max([self.get_q_value(next_state, a) for a in self.actions])
+        self.set_q_value(state, action, self.get_q_value(state, action) + self.lr * (reward + self.gamma * max_q - self.get_q_value(state, action)))
+
+class GridWorld:
+    def __init__(self, size, goal):
+        self.size = size
+        self.goal = goal
+        self.state = (0, 0)
+    
+    def reset(self):
+        self.state = (0, 0)
+    
+    def move(self, action):
+        x, y = self.state
+        if action == 'up': x -= 1
+        elif action == 'down': x += 1
+        elif action == 'left': y -= 1
+        elif action == 'right': y += 1
+        self.state = (max(0, min(x, self.size-1)), max(0, min(y, self.size-1)))
+        return self.state
+    
+    def is_goal_state(self):
+        return self.state == self.goal
+
+def train(agent, env, episodes=1000):
+    for _ in range(episodes):
+        env.reset()
+        state = env.state
+        while not env.is_goal_state():
+            action = agent.choose_action(state)
+            next_state = env.move(action)
+            reward = 1 if env.is_goal_state() else -0.1
+            agent.update_q_value(state, action, reward, next_state)
+            state = next_state
+
+if __name__ == "__main__":
+    actions = ['up', 'down', 'left', 'right']
+    agent = QLearningAgent(actions)
+    env = GridWorld(5, (4, 4))
+    train(agent, env)
+
+    print("Q-values:", agent.q_values)
