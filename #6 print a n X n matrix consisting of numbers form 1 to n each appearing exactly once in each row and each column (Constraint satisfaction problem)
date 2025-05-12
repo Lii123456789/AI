@@ -1,0 +1,12 @@
+def generate_matrix(n):
+    matrix = [[(i + j) % n + 1 for j in range(n)] for i in range(n)]
+    return matrix
+
+def print_matrix(matrix):
+    for row in matrix:
+        print(" ".join(map(str, row)))
+
+if __name__ == "__main__":
+    n = int(input("Enter the value of n: "))
+    matrix = generate_matrix(n)
+    print_matrix(matrix)
